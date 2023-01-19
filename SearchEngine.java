@@ -5,34 +5,35 @@ import java.util.*;
 class Handler implements URLHandler {
     // The one bit of state on the server: a number that will be manipulated by
     // various requests.
-    String[] stringList = new String[10];
-    int size = 0;
+    ArrayList<String> stringList = new ArrayList<String>();
 
     public String handleRequest(URI url) {
         if (url.getPath().equals("/")) {
-            return String.format("List of words: %s", Arrays.toString(stringList));
+            String output = "";
+            for (int i = 0; i < stringList.size(); i++) {
+                output += stringList.get(i) + ", ";
+            }
+            return String.format("List of words: %s", output);
         } else {
             System.out.println("Path: " + url.getPath());
             String[] parameters = url.getQuery().split("=");
             if (url.getPath().contains("/add")) {
                 if (parameters[0].equals("s")) {
-                    stringList[size] = parameters[1];
-                    System.out.println(stringList[0]);
-                    size++;
-                    return String.format("Added word: %s", stringList[size - 1]);
+                    stringList.add(parameters[1]);
+                    return String.format("Added word: %s", stringList.get(stringList.size() - 1));
                 }
             }
-            String output = "";
+            String searchOutput = "";
             
             if (url.getPath().contains("search")) {
                 if (parameters[0].equals("s")) {
-                    for (int i = 0; i < size; i++) {
-                        if (stringList[i].contains(parameters[1])) {
-                            output += stringList[i] + " ";
+                    for (int i = 0; i < stringList.size(); i++) {
+                        if (stringList.get(i).contains(parameters[1])) {
+                            searchOutput += stringList.get(i) + ", ";
                         }
                     }
                 }
-                return String.format("Matching words: %s", output);
+                return String.format("Matching words: %s", searchOutput);
             }
             return ("Invalid input");
         }
